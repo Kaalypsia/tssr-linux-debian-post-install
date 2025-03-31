@@ -9,7 +9,9 @@ LOG_FILE="$LOG_DIR/postinstall_$TIMESTAMP.log"
 #Creation du fichier independant de logs a l'heure dediee.
 CONFIG_DIR="./config"
 PACKAGE_LIST="./lists/packages.txt"
+# Declaration du dossier dans lequel se trouve les packages necessaires.
 USERNAME=$(logname)
+# L'user pour l'authentification de session par laquelle est lancee ce bash (check des droits)
 USER_HOME="/home/$USERNAME"
 
 
@@ -22,14 +24,19 @@ check_and_install() {
   local pkg=$1
   if dpkg -s "$pkg" &>/dev/null; then
     log "$pkg is already installed."
+    # Verification de la presence du paquet demande : dire qu'il est deja installe si c'est le cas.
   else
     log "Installing $pkg..."
+    # Si ce n'est pas le cas, indiquer qu'il va s'installer et le tracer dans la variable precedemment declaree $pkg.
     apt install -y "$pkg" &>>"$LOG_FILE"
+    # l'installer, effectivement, avec accord automatique "yes" de toutes les questions durant l'install
+    # + tracabilite dans le fichier de variable $LOG_FILE
     if [ $? -eq 0 ]; then
       log "$pkg successfully installed."
     else
       log "Failed to install $pkg."
     fi
+    # 
   fi
 }
 
