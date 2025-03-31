@@ -19,6 +19,7 @@ USER_HOME="/home/$USERNAME"
 log() {
   echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
 }
+# Va tracer les logs en silence et dater + heure le tout dans le fichier de variable $LOG_FILE.
 
 check_and_install() {
   local pkg=$1
@@ -56,12 +57,13 @@ ask_yes_no() {
 
 # === INITIAL SETUP ===
 mkdir -p "$LOG_DIR"
-# 
+# Creer le dossier de log $LOG_DIR
 touch "$LOG_FILE"
 log "Starting post-installation script. Logged user: $USERNAME"
 # Lancement de l'installation du paquet par l'utilisateur variable $username (la personne loggee)
 if [ "$EUID" -ne 0 ]; then
   log "This script must be run as root."
+  # Indique que le script se lance en root (message textuel)
   exit 1
 fi
 
@@ -74,12 +76,14 @@ apt update && apt upgrade -y &>>"$LOG_FILE"
 # === 2. PACKAGE INSTALLATION ===
 if [ -f "$PACKAGE_LIST" ]; then
   log "Reading package list from $PACKAGE_LIST"
+  # Indique qu'il y a tel ou tel paquet dans la liste a installer (message textuel)
   while IFS= read -r pkg || [[ -n "$pkg" ]]; do
     [[ -z "$pkg" || "$pkg" =~ ^# ]] && continue
     check_and_install "$pkg"
   done < "$PACKAGE_LIST"
 else
   log "Package list file $PACKAGE_LIST not found. Skipping package installation."
+  # Indique qu'il n'a pas trouve les packets. (message textuel a l'ecran)
 fi
 
 
@@ -90,6 +94,7 @@ if [ -f "$CONFIG_DIR/motd.txt" ]; then
 else
   log "motd.txt not found."
 fi
+# Deplace le fichier avec les nouveaux a l'endroit qui permettra d'etre lu au bon moment ("les news")
 
 
 # === 4. CUSTOM .bashrc ===
@@ -114,8 +119,11 @@ fi
 
 # === 6. ADD SSH PUBLIC KEY ===
 if ask_yes_no "Would you like to add a public SSH key?"; then
+# La fabuleuse question du "est-ce qu'on veut utiliser une connexion SSH" et donc ajouter sa cle publique.
   read -p "Paste your public SSH key: " ssh_key
+  # Dis de coller sa cle dans le fichier ssh_key.
   mkdir -p "$USER_HOME/.ssh"
+  # Creer le dossier .ssh dans le dossier racine de l'utilisateur
   echo "$ssh_key" >> "$USER_HOME/.ssh/authorized_keys"
   chown -R "$USERNAME:$USERNAME" "$USER_HOME/.ssh"
   chmod 700 "$USER_HOME/.ssh"
