@@ -23,6 +23,7 @@ log() {
 check_and_install() {
   local pkg=$1
   if dpkg -s "$pkg" &>/dev/null; then
+  # Si le dossier est vide du fichier depackage du pkg qu'on veut, alors...
     log "$pkg is already installed."
     # Verification de la presence du paquet demande : dire qu'il est deja installe si c'est le cas.
   else
@@ -32,9 +33,12 @@ check_and_install() {
     # l'installer, effectivement, avec accord automatique "yes" de toutes les questions durant l'install
     # + tracabilite dans le fichier de variable $LOG_FILE
     if [ $? -eq 0 ]; then
+    # Cite la condition qui permet de savoir si le paquet est installe ou pas... (Je ne sais pas la lire)
       log "$pkg successfully installed."
+      # Message en log indiquant la reussite de l'installation du paquer cite dans la variable.
     else
       log "Failed to install $pkg."
+      # Message en log indiquant l'echec de l'installation du paquet cite dans la variable.
     fi
     # 
   fi
@@ -52,9 +56,10 @@ ask_yes_no() {
 
 # === INITIAL SETUP ===
 mkdir -p "$LOG_DIR"
+# 
 touch "$LOG_FILE"
 log "Starting post-installation script. Logged user: $USERNAME"
-
+# Lancement de l'installation du paquet par l'utilisateur variable $username (la personne loggee)
 if [ "$EUID" -ne 0 ]; then
   log "This script must be run as root."
   exit 1
@@ -64,7 +69,7 @@ fi
 # === 1. SYSTEM UPDATE ===
 log "Updating system packages..."
 apt update && apt upgrade -y &>>"$LOG_FILE"
-
+# Mise a jour des paquets systemes et sauvegarde dans le $Log_file.
 
 # === 2. PACKAGE INSTALLATION ===
 if [ -f "$PACKAGE_LIST" ]; then
@@ -132,6 +137,7 @@ fi
 
 
 log "Post-installation script completed."
+# Message indiquant la reussite du processus de script.
 
 
 exit 0
