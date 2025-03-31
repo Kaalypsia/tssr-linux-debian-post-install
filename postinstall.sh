@@ -2,12 +2,16 @@
 
 # === VARIABLES ===
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+# A la date du moment...
 LOG_DIR="./logs"
+# Creer / tracer les actions a tel endroit : /logs
 LOG_FILE="$LOG_DIR/postinstall_$TIMESTAMP.log"
+#Creation du fichier independant de logs a l'heure dediee.
 CONFIG_DIR="./config"
 PACKAGE_LIST="./lists/packages.txt"
 USERNAME=$(logname)
 USER_HOME="/home/$USERNAME"
+
 
 # === FUNCTIONS ===
 log() {
@@ -29,6 +33,7 @@ check_and_install() {
   fi
 }
 
+
 ask_yes_no() {
   read -p "$1 [y/N]: " answer
   case "$answer" in
@@ -36,6 +41,7 @@ ask_yes_no() {
     * ) return 1 ;;
   esac
 }
+
 
 # === INITIAL SETUP ===
 mkdir -p "$LOG_DIR"
@@ -47,9 +53,11 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
+
 # === 1. SYSTEM UPDATE ===
 log "Updating system packages..."
 apt update && apt upgrade -y &>>"$LOG_FILE"
+
 
 # === 2. PACKAGE INSTALLATION ===
 if [ -f "$PACKAGE_LIST" ]; then
@@ -62,6 +70,7 @@ else
   log "Package list file $PACKAGE_LIST not found. Skipping package installation."
 fi
 
+
 # === 3. UPDATE MOTD ===
 if [ -f "$CONFIG_DIR/motd.txt" ]; then
   cp "$CONFIG_DIR/motd.txt" /etc/motd
@@ -69,6 +78,7 @@ if [ -f "$CONFIG_DIR/motd.txt" ]; then
 else
   log "motd.txt not found."
 fi
+
 
 # === 4. CUSTOM .bashrc ===
 if [ -f "$CONFIG_DIR/bashrc.append" ]; then
@@ -79,6 +89,7 @@ else
   log "bashrc.append not found."
 fi
 
+
 # === 5. CUSTOM .nanorc ===
 if [ -f "$CONFIG_DIR/nanorc.append" ]; then
   cat "$CONFIG_DIR/nanorc.append" >> "$USER_HOME/.nanorc"
@@ -87,6 +98,7 @@ if [ -f "$CONFIG_DIR/nanorc.append" ]; then
 else
   log "nanorc.append not found."
 fi
+
 
 # === 6. ADD SSH PUBLIC KEY ===
 if ask_yes_no "Would you like to add a public SSH key?"; then
@@ -99,6 +111,7 @@ if ask_yes_no "Would you like to add a public SSH key?"; then
   log "SSH public key added."
 fi
 
+
 # === 7. SSH CONFIGURATION: KEY AUTH ONLY ===
 if [ -f /etc/ssh/sshd_config ]; then
   sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
@@ -110,6 +123,8 @@ else
   log "sshd_config file not found."
 fi
 
+
 log "Post-installation script completed."
+
 
 exit 0
