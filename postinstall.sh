@@ -4,16 +4,17 @@
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 # A la date du moment...
 LOG_DIR="./logs"
-# Creer / tracer les actions a tel endroit : /logs
+# Tracer les actions a tel endroit : /logs
 LOG_FILE="$LOG_DIR/postinstall_$TIMESTAMP.log"
 #Creation du fichier independant de logs a l'heure dediee.
 CONFIG_DIR="./config"
+# Declaration du dossier de configuration
 PACKAGE_LIST="./lists/packages.txt"
 # Declaration du dossier dans lequel se trouve les packages necessaires.
 USERNAME=$(logname)
 # L'user pour l'authentification de session par laquelle est lancee ce bash (check des droits)
 USER_HOME="/home/$USERNAME"
-
+# Declaration du dossier de l'utilisateur
 
 # === FUNCTIONS ===
 log() {
@@ -24,19 +25,19 @@ log() {
 check_and_install() {
   local pkg=$1
   if dpkg -s "$pkg" &>/dev/null; then
-  # Si le dossier est vide du fichier depackage du pkg qu'on veut, alors...
+  # Si le paquet est installe, alors...
     log "$pkg is already installed."
-    # Verification de la presence du paquet demande : dire qu'il est deja installe si c'est le cas.
+    # dire qu'il est deja installe.
   else
     log "Installing $pkg..."
     # Si ce n'est pas le cas, indiquer qu'il va s'installer et le tracer dans la variable precedemment declaree $pkg.
     apt install -y "$pkg" &>>"$LOG_FILE"
-    # l'installer, effectivement, avec accord automatique "yes" de toutes les questions durant l'install
+    # l'installer, avec accord automatique "yes" de toutes les questions durant l'install
     # + tracabilite dans le fichier de variable $LOG_FILE
     if [ $? -eq 0 ]; then
     # Cite la condition qui permet de savoir si le paquet est installe ou pas... (Je ne sais pas la lire)
       log "$pkg successfully installed."
-      # Message en log indiquant la reussite de l'installation du paquer cite dans la variable.
+      # Message en log indiquant la reussite de l'installation du paquet.
     else
       log "Failed to install $pkg."
       # Message en log indiquant l'echec de l'installation du paquet cite dans la variable.
@@ -47,6 +48,7 @@ check_and_install() {
 
 
 ask_yes_no() {
+  # Commande qui permet de poser une question avec reponse oui ou non.
   read -p "$1 [y/N]: " answer
   case "$answer" in
     [Yy]* ) return 0 ;;
@@ -63,13 +65,14 @@ log "Starting post-installation script. Logged user: $USERNAME"
 # Lancement de l'installation du paquet par l'utilisateur variable $username (la personne loggee)
 if [ "$EUID" -ne 0 ]; then
   log "This script must be run as root."
-  # Indique que le script se lance en root (message textuel)
+  # Indique que le script se lance en root ?
   exit 1
 fi
 
 
 # === 1. SYSTEM UPDATE ===
 log "Updating system packages..."
+#Trace que le systeme installe les paquets de mises a jour.
 apt update && apt upgrade -y &>>"$LOG_FILE"
 # Mise a jour des paquets systemes et sauvegarde dans le $Log_file.
 
