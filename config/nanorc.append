@@ -1,4 +1,25 @@
 set linenumbers
 set softwrap
 set tabsize 4
+set autoindent ##ajout
 set mouse
+
+# Afficher la position du curseur (ligne/colonne)
+set const
+
+# Activer la coloration syntaxique pour tous les fichiers
+include "/usr/share/nano/*.nanorc"  # Inclus toutes les définitions de syntaxe disponibles sur ton système
+
+# Rendre le curseur plus visible
+set cursorcolor "yellow"
+
+# Raccourci clavier personnalisé pour sauvegarder
+bind ^S savefile main
+
+# Raccourci clavier personnalisé pour annuler
+bind ^Z undo main
+
+# Choisir une palette de couleurs personnalisée
+set background dark   # Fond sombre
+set color brightgreen white  # Texte clair en vert
+set color green black   # Texte vert sur fond noir
