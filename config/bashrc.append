@@ -1,2 +1,34 @@
 alias ll='ls -la --color=auto'
-PS1='\u@\h:\w\$ '
+# PS1='\u@\h:\w\$ '
+
+# Personnalisation du prompt avec des couleurs
+PS1='\[\e[1;32m\]\u@\h \[\e[1;34m\]\w\[\e[0m\] \$ '
+
+# Alias utiles
+alias ll='ls -la'      # Liste détaillée des fichiers
+alias gs='git status'   # Statut Git
+alias ga='git add .'    # Ajouter tous les fichiers modifiés dans Git
+alias gb='git branch'   # Liste des branches Git
+alias ..='cd ..'        # Aller au répertoire parent
+alias h='history'       # Afficher l'historique des commandes
+alias rm='rm -i'        # Demander confirmation avant de supprimer un fichier
+
+# Variables d'environnement utiles
+export HISTCONTROL=ignoredups:erasedups  # Ignore les doublons dans l'historique
+export HISTSIZE=10000                   # Taille de l'historique des commandes
+export EDITOR=nano                      # Définit nano comme éditeur par défaut
+export PATH=$PATH:/opt/bin              # Ajouter un dossier supplémentaire au PATH
+
+# Affichage de l'état de Git dans le prompt
+git_branch() {
+    branch=$(git symbolic-ref HEAD 2>/dev/null)
+    if [ "$branch" ]; then
+        echo "($branch)"
+    fi
+}
+
+# Ajouter la fonction git_branch à ton prompt
+PS1='[\u@\h \w $(git_branch)] \$ '
+
+# Ajout de couleurs aux répertoires dans le terminal
+LS_COLORS=$LS_COLORS:'di=1;35:' ; export LS_COLORS
