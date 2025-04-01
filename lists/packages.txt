@@ -2,3 +2,9 @@ nmap
 net-tools
 htop
 curl
+
+python
+bash
+fish
+fish-common
+bb
